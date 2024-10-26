@@ -1,30 +1,50 @@
-import { LineChart } from '@/components/line-chart'
-import { CountryInfo } from '@/types/countries'
-import Image from 'next/image'
-import Link from 'next/link'
+"use client";
+
+import { LineChart } from '@/components/line-chart';
+import { CountryInfo } from '@/types/countries';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 interface ContentProps {
-  params: {
-    code: string
-  }
+  params: Promise<{ code: string }>;
 }
 
-export default async function Country({ params: { code } }: ContentProps) {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_DATABASE}/country/${code}`,
-  )
-  const data: CountryInfo = await response.json()
+export default function Country({ params }: ContentProps) {
+  const [code, setCode] = useState<string | null>(null);
+  const [data, setData] = useState<CountryInfo | null>(null);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [populationQuantity, setPopulationQuantity] = useState<number[]>([]);
 
-  const categories = data.population.map((entry) => entry.year.toString())
-  const populationQuantity = data.population.map((entry) => entry.value)
+  useEffect(() => {
+    params.then((unwrappedParams) => setCode(unwrappedParams.code));
+  }, [params]);
+
+  useEffect(() => {
+    async function fetchData() {
+      if (code) {
+        const response: CountryInfo = await fetch(
+          `${process.env.NEXT_PUBLIC_DATABASE}/country/${code}`
+        ).then((res) => res.json());
+
+        const categories = response.population.map((entry) => entry.year.toString());
+        const populationQuantity = response.population.map((entry) => entry.value);
+
+        setData(response);
+        setCategories(categories);
+        setPopulationQuantity(populationQuantity);
+      }
+    }
+
+    fetchData();
+  }, [code]);
+
+  if (!data) return null;
 
   return (
     <div className="mx-auto flex min-h-screen max-w-4xl flex-col gap-5 bg-[#141414] px-10 pt-10 lg:px-20">
       <div className="flex items-center gap-3">
-        <Link
-          href={'/countries'}
-          className="flex size-10 items-center justify-center rounded-full border-4 font-bold"
-        >
+        <Link href={'/countries'} className="flex size-10 items-center justify-center rounded-full border-4 font-bold">
           &larr;
         </Link>
         <h1 className="text-4xl">{data.name}</h1>
@@ -49,7 +69,7 @@ export default async function Country({ params: { code } }: ContentProps) {
       </div>
 
       <h2 className="mb-2 text-xl font-semibold">
-        Population around of the years
+        Population around the years
       </h2>
       <div className="text-black">
         <LineChart
@@ -58,5 +78,5 @@ export default async function Country({ params: { code } }: ContentProps) {
         />
       </div>
     </div>
-  )
+  );
 }
