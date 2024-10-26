@@ -1,15 +1,17 @@
-"use client"
-import { Country } from "@/types/countries";
-import { FlagOutlined } from "@ant-design/icons";
-import { Card, List, Typography } from "antd";
-import Link from "next/link";
-import { useEffect, useState } from "react";
+'use client'
+import { Country } from '@/types/countries'
+import { FlagOutlined } from '@ant-design/icons'
+import { Card, List, Typography } from 'antd'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
 export default function CountryList() {
-  const [countries, setCountries] = useState<Country[]>([]);
+  const [countries, setCountries] = useState<Country[]>([])
 
   async function fetchData() {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_DATABASE}/country`).then((res) => res.json())
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_DATABASE}/country`,
+    ).then((res) => res.json())
     setCountries(response)
   }
 
@@ -17,12 +19,10 @@ export default function CountryList() {
     fetchData()
   }, [])
   return (
-    <div className="h-screen flex justify-center items-center">
-      <Card className="w-full flex flex-col gap-10 max-w-2xl bg-white shadow-md rounded-lg">
-        <h1 className="text-4xl">
-          List of countries
-        </h1>
-        <div className="h-96 overflow-auto pr-10 mt-3">
+    <div className="flex h-screen items-center justify-center">
+      <Card className="flex w-full max-w-2xl flex-col gap-10 rounded-lg bg-white shadow-md">
+        <h1 className="text-4xl">List of countries</h1>
+        <div className="mt-3 h-96 overflow-auto pr-10">
           <List
             itemLayout="horizontal"
             dataSource={countries}
@@ -33,7 +33,9 @@ export default function CountryList() {
                     title={
                       <div className="flex items-center">
                         <FlagOutlined className="mr-2 text-blue-500" />
-                        <span className="text-lg font-semibold">{country.name}</span>
+                        <span className="text-lg font-semibold">
+                          {country.name}
+                        </span>
                       </div>
                     }
                     description={
@@ -52,5 +54,5 @@ export default function CountryList() {
         </div>
       </Card>
     </div>
-  );
-};
+  )
+}
